@@ -5,7 +5,7 @@ export NMEASettings,
        parse_line!
 
 # GGA messages
-include("GPSFix.jl")
+include("GGA.jl")
 export GGA
 
 ############################################################
@@ -43,7 +43,7 @@ function parse_line!(s::NMEASettings, line::String)
     elseif (ismatch(r"GBS$", items[1]))
         mtype = "GBS"
     elseif (ismatch(r"GGA$", items[1]))
-        s.last_GGA = _parseGPSFixData(items, system)
+        s.last_GGA = _parseGGA(items, system)
         mtype = "GGA"
     elseif (ismatch(r"GLL$", items[1]))
         mtype = "GLL"
