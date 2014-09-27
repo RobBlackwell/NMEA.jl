@@ -1,5 +1,8 @@
 module NMEA
 
+# for common conversion functions
+include("Conversions.jl")
+
 # device/file handler code
 export NMEASettings,
        parse_line!
@@ -7,6 +10,10 @@ export NMEASettings,
 # GGA messages
 include("GGA.jl")
 export GGA
+
+# RMC messages
+include("RMC.jl")
+export RMC
 
 ############################################################
 # NMEASettings
@@ -16,10 +23,12 @@ export GGA
 
 type NMEASettings
     last_GGA::GGA
+    last_RMC::RMC
     
     function NMEASettings()
         last_GGA = GGA()
-        new(last_GGA)
+        last_RMC = RMC()
+        new(last_GGA, last_RMC)
     end # constructor NMEASettings
 
 end # type NMEASettings
@@ -54,6 +63,7 @@ function parse_line!(s::NMEASettings, line::String)
     elseif (ismatch(r"GSV$", items[1]))
         mtype = "GSV"
     elseif (ismatch(r"RMC$", items[1]))
+        s.last_RMC = _parseRMC(items, system)
         mtype = "RMC"
     elseif (ismatch(r"VTG$", items[1]))
         mtype = "VTG"

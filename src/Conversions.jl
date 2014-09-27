@@ -11,9 +11,8 @@ function _dms_to_dd(dms::SubString{ASCIIString}, hemi::SubString{ASCIIString})
 
     degrees = int(dms[1:2])
     minutes = int(dms[3:4])
-    println(minutes)
-    seconds = int(split(dms, '.')[2][1:2])
-    dec_degrees = degrees + (minutes / 60) + (seconds / 3600)
+    seconds = int(split(dms, '.')[2])
+    dec_degrees = degrees + (minutes / 60) + (seconds / 360000)
 
     if (hemi == "S" || hemi == "W")
         dec_degrees *= -1
@@ -22,3 +21,15 @@ function _dms_to_dd(dms::SubString{ASCIIString}, hemi::SubString{ASCIIString})
     dec_degrees
 end # function _dms_to_dd
 
+############################################################
+# _hms_to_secs
+# ------------
+# hhmmss.s-s to time in seconds
+############################################################
+
+function _hms_to_secs(hms::SubString{ASCIIString})
+    hours = int(hms[1:2])
+    minutes = int(hms[3:4])
+    seconds = float(hms[5:9])
+    (hours * 3600) + (minutes * 60) + seconds
+end # function _hms_to_secs

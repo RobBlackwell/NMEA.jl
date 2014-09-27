@@ -25,4 +25,3 @@ function tryint(item::SubString{ASCIIString})
         0
     end
 end # function tryint
-

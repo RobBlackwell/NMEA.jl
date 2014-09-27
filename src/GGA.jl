@@ -1,5 +1,4 @@
 include("TryParse.jl")
-include("Conversions.jl")
 
 ############################################################
 # GGA
@@ -50,7 +49,7 @@ end # type GGA
 function _parseGGA(items::Array{SubString{ASCIIString}}, system::String)
     fix_data = GGA()
     fix_data.system = system
-    fix_data.time = tryfloat(items[2])
+    fix_data.time = _hms_to_secs(items[2])
     fix_data.latitude = _dms_to_dd(items[3], items[4])
     fix_data.longitude = _dms_to_dd(items[5], items[6])
     fix_data.flag = tryint(items[7])

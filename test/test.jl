@@ -5,9 +5,12 @@ function main()
     fh = open("nmeadata.txt", "r")
     for line = readlines(fh)
         mtype = parse_line!(nmea, line)
-        println(mtype)
         if (mtype == "GGA")
             println(nmea.last_GGA)
+        elseif (mtype == "RMC")
+            println(nmea.last_RMC)
+        else
+            continue
         end
     end
 end # function main()
