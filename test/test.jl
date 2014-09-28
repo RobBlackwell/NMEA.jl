@@ -9,6 +9,10 @@ function main()
             println(nmea.last_GGA)
         elseif (mtype == "RMC")
             println(nmea.last_RMC)
+        elseif (mtype == "GSA")
+            println(nmea.last_GSA)
+        elseif (mtype == "GSV")
+            println(nmea.last_GSV)
         else
             continue
         end

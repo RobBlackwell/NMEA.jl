@@ -15,20 +15,33 @@ export GGA
 include("RMC.jl")
 export RMC
 
+# GSA messages
+include("GSA.jl")
+export GSA
+
+include("GSV.jl")
+export GSV,
+       SVData
+
 ############################################################
 # NMEASettings
-# ----------
+# ------------
 # IO handler settings
 ############################################################
 
 type NMEASettings
     last_GGA::GGA
     last_RMC::RMC
+    last_GSA::GSA
+    last_GSV::GSV
     
     function NMEASettings()
-        last_GGA = GGA()
-        last_RMC = RMC()
-        new(last_GGA, last_RMC)
+        last_GGA = GGA("UNKNOWN")
+        last_RMC = RMC("UNKNOWN")
+        last_GSA = GSA("UNKNOWN")
+        last_GSV = GSV("UNKNOWN")
+        new(last_GGA, last_RMC, last_GSA,
+            last_GSV)
     end # constructor NMEASettings
 
 end # type NMEASettings
@@ -44,7 +57,7 @@ function parse_line!(s::NMEASettings, line::String)
     items = split(message, ',')
 
     # get system name
-    system = _get_system(items[1])
+    system = get_system(items[1])
 
     mtype = ""
     if (ismatch(r"DTM$", items[1]))
@@ -52,18 +65,20 @@ function parse_line!(s::NMEASettings, line::String)
     elseif (ismatch(r"GBS$", items[1]))
         mtype = "GBS"
     elseif (ismatch(r"GGA$", items[1]))
-        s.last_GGA = _parseGGA(items, system)
+        s.last_GGA = parse_GGA(items, system)
         mtype = "GGA"
     elseif (ismatch(r"GLL$", items[1]))
         mtype = "GLL"
     elseif (ismatch(r"GNS$", items[1]))
         mtype = "GNS"
     elseif (ismatch(r"GSA$", items[1]))
+        s.last_GSA = parse_GSA(items, system)
         mtype = "GSA"
     elseif (ismatch(r"GSV$", items[1]))
+        s.last_GSV = parse_GSV(items, system)
         mtype = "GSV"
     elseif (ismatch(r"RMC$", items[1]))
-        s.last_RMC = _parseRMC(items, system)
+        s.last_RMC = parse_RMC(items, system)
         mtype = "RMC"
     elseif (ismatch(r"VTG$", items[1]))
         mtype = "VTG"
@@ -83,12 +98,12 @@ end # function start!
 ############################################################
 
 ############################################################
-# _get_system
+# get_system
 # -----------
 # determines system from message type string
 ############################################################
 
-function _get_system(mtype::SubString{ASCIIString})
+function get_system(mtype::SubString{ASCIIString})
     system = ""
 
     # GPS
@@ -113,6 +128,6 @@ function _get_system(mtype::SubString{ASCIIString})
     end
 
     system
-end # function _get_system
+end # function get_system
 
 end # module

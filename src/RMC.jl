@@ -1,6 +1,13 @@
 include("TryParse.jl")
 
+############################################################
+# RMC
+# ---
+# RMC message type - Recommended Minimum Specific GNSS Data
+############################################################
+
 type RMC
+    system::String
     time::Float64
     status::Bool
     latitude::Float64
@@ -11,7 +18,8 @@ type RMC
     magvar::Float64
     mode::Char
 
-    function RMC()
+    function RMC(sys::String)
+        system = sys
         time = 0.0
         status = 'V'
         latitude = 0.0
@@ -21,9 +29,10 @@ type RMC
         date = ""
         magvar = 0.0
         mode = 'N'
-        new(time, status, latitude,
-            longitude, sog, cog,
-            date, magvar, mode)
+        new(system, time, status,
+            latitude, longitude, sog,
+            cog, date, magvar,
+            mode)
     end # constructor RMC
 
 end # type RMC
@@ -34,8 +43,8 @@ end # type RMC
 # parse RMC messages and return populated type struct RMC
 ############################################################
 
-function _parseRMC(items::Array{SubString{ASCIIString}}, system::String)
-    rmc_data = RMC()
+function parse_RMC(items::Array{SubString{ASCIIString}}, system::String)
+    rmc_data = RMC(system)
     rmc_data.time = _hms_to_secs(items[2])
 
     if (items[3] == "A")
@@ -60,4 +69,4 @@ function _parseRMC(items::Array{SubString{ASCIIString}}, system::String)
     rmc_data.mode = items[13][1]
 
     rmc_data
-end # function _parseRMC
+end # function parse_RMC

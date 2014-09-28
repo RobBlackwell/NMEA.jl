@@ -19,8 +19,8 @@ type GGA
     age_of_differential::Float64 # seconds since last SC104
     diff_reference_id::Int # differential reference station id
 
-    function GGA()
-        system = "UNKNOWN"
+    function GGA(sys::String)
+        system = sys
         time = 0
         latitude = 0.0
         longitude = 0.0
@@ -41,14 +41,13 @@ type GGA
 end # type GGA
 
 ############################################################
-# _parseGGA
+# parse_GGA
 # ---------
 # parses GGA messages and returns populated GGA type
 ############################################################
 
-function _parseGGA(items::Array{SubString{ASCIIString}}, system::String)
-    fix_data = GGA()
-    fix_data.system = system
+function parse_GGA(items::Array{SubString{ASCIIString}}, system::String)
+    fix_data = GGA(system)
     fix_data.time = _hms_to_secs(items[2])
     fix_data.latitude = _dms_to_dd(items[3], items[4])
     fix_data.longitude = _dms_to_dd(items[5], items[6])
