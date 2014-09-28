@@ -3,6 +3,9 @@ module NMEA
 # for common conversion functions
 include("Conversions.jl")
 
+# for parsing data
+include("TryParse.jl")
+
 # device/file handler code
 export NMEASettings,
        parse_line!
@@ -19,6 +22,7 @@ export RMC
 include("GSA.jl")
 export GSA
 
+# GSV messages
 include("GSV.jl")
 export GSV,
        SVData

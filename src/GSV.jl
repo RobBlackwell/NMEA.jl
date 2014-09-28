@@ -1,3 +1,9 @@
+############################################################
+# SVData
+# ------
+# type to store SV data fields in GSV
+############################################################
+
 type SVData
     PRN::Int
     elevation::Int
@@ -14,6 +20,12 @@ type SVData
     end # constructor SVData
 
 end # type SVData
+
+############################################################
+# GSV
+# ---
+# type for GSV messages - GNSS Satellites In View
+############################################################
 
 type GSV
     system::String
@@ -33,6 +45,12 @@ type GSV
     end # constructor GSV
 
 end # type GSV
+
+############################################################
+# parse_GSV
+# ---------
+# parse GSV messages
+############################################################
 
 function parse_GSV(items::Array{SubString{ASCIIString}}, system::String)
     gsv_data = GSV(system)
