@@ -30,10 +30,10 @@ type GGA
         age_of_differential = 0.0
         diff_reference_id = 0
         data_validity = false
-        new (system, time, latitude,
-             longitude, flag, num_sats,
-             HDOP, altitude, geoidal_seperation,
-             age_of_differential, diff_reference_id)
+        new(system, time, latitude,
+            longitude, flag, num_sats,
+            HDOP, altitude, geoidal_seperation,
+            age_of_differential, diff_reference_id)
     end # constructor GGA
 
 end # type GGA
@@ -45,17 +45,17 @@ end # type GGA
 ############################################################
 
 function parse_GGA(items::Array{SubString{ASCIIString}}, system::String)
-    fix_data = GGA(system)
-    fix_data.time = _hms_to_secs(items[2])
-    fix_data.latitude = _dms_to_dd(items[3], items[4])
-    fix_data.longitude = _dms_to_dd(items[5], items[6])
-    fix_data.flag = tryint(items[7])
-    fix_data.num_sats = tryint(items[8])
-    fix_data.HDOP = tryfloat(items[9])
-    fix_data.altitude = tryfloat(items[10])
-    fix_data.geoidal_seperation = tryfloat(items[12])
-    fix_data.age_of_differential = tryfloat(items[14])
-    fix_data.diff_reference_id = tryint(items[15])
+    GGA_data = GGA(system)
+    GGA_data.time = hms_to_secs(items[2])
+    GGA_data.latitude = dms_to_dd(items[3], items[4])
+    GGA_data.longitude = dms_to_dd(items[5], items[6])
+    GGA_data.flag = tryint(items[7])
+    GGA_data.num_sats = tryint(items[8])
+    GGA_data.HDOP = tryfloat(items[9])
+    GGA_data.altitude = tryfloat(items[10])
+    GGA_data.geoidal_seperation = tryfloat(items[12])
+    GGA_data.age_of_differential = tryfloat(items[14])
+    GGA_data.diff_reference_id = tryint(items[15])
 
-    return fix_data
-end # function parseGPSFixData
+    return GGA_data
+end # function parse_GGA

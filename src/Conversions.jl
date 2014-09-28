@@ -1,10 +1,10 @@
 ############################################################
-# _dms_to_dd
+# dms_to_dd
 # ----------
 # convert degrees minutes seconds to decimal degrees
 ############################################################
 
-function _dms_to_dd(dms::SubString{ASCIIString}, hemi::SubString{ASCIIString})
+function dms_to_dd(dms::SubString{ASCIIString}, hemi::SubString{ASCIIString})
     if (dms[1:1] == "0")
         dms = dms[2:end]
     end
@@ -19,17 +19,17 @@ function _dms_to_dd(dms::SubString{ASCIIString}, hemi::SubString{ASCIIString})
     end
 
     dec_degrees
-end # function _dms_to_dd
+end # function dms_to_dd
 
 ############################################################
-# _hms_to_secs
+# hms_to_secs
 # ------------
 # hhmmss.s-s to time in seconds
 ############################################################
 
-function _hms_to_secs(hms::SubString{ASCIIString})
+function hms_to_secs(hms::SubString{ASCIIString})
     hours = int(hms[1:2])
     minutes = int(hms[3:4])
-    seconds = float(hms[5:9])
+    seconds = float(hms[5:end])
     (hours * 3600) + (minutes * 60) + seconds
-end # function _hms_to_secs
+end # function hms_to_secs

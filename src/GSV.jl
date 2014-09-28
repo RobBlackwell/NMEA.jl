@@ -53,10 +53,10 @@ end # type GSV
 ############################################################
 
 function parse_GSV(items::Array{SubString{ASCIIString}}, system::String)
-    gsv_data = GSV(system)
-    gsv_data.msg_total = tryint(items[2])
-    gsv_data.msg_num = tryint(items[3])
-    gsv_data.sat_total = tryint(items[4])
+    GSV_data = GSV(system)
+    GSV_data.msg_total = tryint(items[2])
+    GSV_data.msg_num = tryint(items[3])
+    GSV_data.sat_total = tryint(items[4])
 
     i = 5
     while i < length(items)
@@ -65,8 +65,8 @@ function parse_GSV(items::Array{SubString{ASCIIString}}, system::String)
         svd.elevation = tryint(items[i + 1])
         svd.azimuth = tryint(items[i + 2])
         svd.SNR = tryint(items[i + 3])
-        push!(gsv_data.SV_data, svd)
+        push!(GSV_data.SV_data, svd)
         i += 4
     end
-    gsv_data
+    GSV_data
 end # function parse_GSV

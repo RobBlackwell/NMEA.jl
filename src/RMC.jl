@@ -42,29 +42,29 @@ end # type RMC
 ############################################################
 
 function parse_RMC(items::Array{SubString{ASCIIString}}, system::String)
-    rmc_data = RMC(system)
-    rmc_data.time = _hms_to_secs(items[2])
+    RMC_data = RMC(system)
+    RMC_data.time = hms_to_secs(items[2])
 
     if (items[3] == "A")
-        rmc_data.status = true
+        RMC_data.status = true
     else
-        rmc_data.status = false
+        RMC_data.status = false
     end
 
-    rmc_data.latitude = _dms_to_dd(items[4], items[5])
-    rmc_data.longitude = _dms_to_dd(items[6], items[7])
-    rmc_data.sog = tryfloat(items[8])
-    rmc_data.cog = tryfloat(items[9])
-    rmc_data.date = string(items[10][3:4], '/', items[10][1:2], '/', items[10][5:6])
+    RMC_data.latitude = dms_to_dd(items[4], items[5])
+    RMC_data.longitude = dms_to_dd(items[6], items[7])
+    RMC_data.sog = tryfloat(items[8])
+    RMC_data.cog = tryfloat(items[9])
+    RMC_data.date = string(items[10][3:4], '/', items[10][1:2], '/', items[10][5:6])
 
     if (items[12] == "W" || items[12] == "S")
         println(items[11])
-        rmc_data.magvar = tryfloat(items[11]) * -1
+        RMC_data.magvar = tryfloat(items[11]) * -1
     else
-        rmc_data.magvar = tryfloat(items[11])
+        RMC_data.magvar = tryfloat(items[11])
     end
 
-    rmc_data.mode = items[13][1]
+    RMC_data.mode = items[13][1]
 
-    rmc_data
+    RMC_data
 end # function parse_RMC

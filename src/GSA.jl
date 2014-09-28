@@ -35,19 +35,19 @@ end # type GSA
 ############################################################
 
 function parse_GSA(items::Array{SubString{ASCIIString}}, system::String)
-    gsa_data = GSA(system)
-    gsa_data.mode = items[2][1]
-    gsa_data.current_mode = tryint(items[3])
+    GSA_data = GSA(system)
+    GSA_data.mode = items[2][1]
+    GSA_data.current_mode = tryint(items[3])
 
     for i = 4:length(items) - 3
         if (items[i] == "")
             break
         end
-        push!(gsa_data.sat_ids, tryint(items[i]))
+        push!(GSA_data.sat_ids, tryint(items[i]))
     end
-    gsa_data.PDOP = tryfloat(items[end - 2])
-    gsa_data.HDOP = tryfloat(items[end - 1])
-    gsa_data.VDOP = tryfloat(items[end])
+    GSA_data.PDOP = tryfloat(items[end - 2])
+    GSA_data.HDOP = tryfloat(items[end - 1])
+    GSA_data.VDOP = tryfloat(items[end])
 
-    gsa_data
+    GSA_data
 end # function parse_GSA

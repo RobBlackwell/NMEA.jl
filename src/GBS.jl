@@ -39,14 +39,14 @@ end # type GBS
 ############################################################
 
 function parse_GBS(items::Array{SubString{ASCIIString}}, system::String)
-    gbs_data = GBS(system)
-    gbs_data.time = hms_to_secs(items[2])
-    gbs_data.lat_error = tryfloat(items[3])
-    gbs_data.long_error = tryfloat(items[4])
-    gbs_data.alt_error = tryfloat(items[5])
-    gbs_data.failed_PRN = tryint(items[6])
-    gbs_data.prob_of_missed = tryfloat(items[7])
-    gbs_data.excluded_meas_err = tryfloat(items[8])
-    gbs_data.standard_deviation = tryfloat(items[9])
-    gbs_data
+    GBS_data = GBS(system)
+    GBS_data.time = hms_to_secs(items[2])
+    GBS_data.lat_error = tryfloat(items[3])
+    GBS_data.long_error = tryfloat(items[4])
+    GBS_data.alt_error = tryfloat(items[5])
+    GBS_data.failed_PRN = tryint(items[6])
+    GBS_data.prob_of_missed = tryfloat(items[7])
+    GBS_data.excluded_meas_err = tryfloat(items[8])
+    GBS_data.standard_deviation = tryfloat(items[9])
+    GBS_data
 end # function parse_GBS
