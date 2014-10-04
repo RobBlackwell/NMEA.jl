@@ -11,7 +11,8 @@ export NMEASettings,
        GBS,
        VTG,
        GLL,
-       ZDA
+       ZDA,
+       DTM
 
 ############################################################
 # GGA
@@ -24,31 +25,33 @@ type GGA
     time::Float64 # in seconds
     latitude::Float64 # decimal degrees
     longitude::Float64 # decimal degrees
-    flag::Int
+    fix_quality::String
     num_sats::Int
     HDOP::Float64
     altitude::Float64 # MSL in meters
     geoidal_seperation::Float64 # meters
     age_of_differential::Float64 # seconds since last SC104
     diff_reference_id::Int # differential reference station id
+    valid::Bool
 
     function GGA(sys::String)
         system = sys
         time = 0
         latitude = 0.0
         longitude = 0.0
-        flag = 0
+        fix_quality = "UNKNOWN"
         num_sats = 0
         HDOP = 0.0
         altitude = 0.0
         geoidal_seperation = 0.0
         age_of_differential = 0.0
         diff_reference_id = 0
-        data_validity = false
+        valid = false
         new(system, time, latitude,
-            longitude, flag, num_sats,
+            longitude, fix_quality, num_sats,
             HDOP, altitude, geoidal_seperation,
-            age_of_differential, diff_reference_id)
+            age_of_differential, diff_reference_id,
+            valid)
     end # constructor GGA
 
 end # type GGA
@@ -67,6 +70,7 @@ type GSA
     PDOP::Float64
     HDOP::Float64
     VDOP::Float64
+    valid::Bool
 
     function GSA(sys::String)
         system = sys
@@ -76,9 +80,10 @@ type GSA
         PDOP = 0.0
         HDOP = 0.0
         VDOP = 0.0
+        valid = false
         new(system, mode, current_mode,
             sat_ids, PDOP, HDOP,
-            VDOP)
+            VDOP, valid)
     end # constructor GSA
 
 end # type GSA
@@ -97,6 +102,7 @@ type ZDA
     year::Int
     zone_hrs::Int
     zone_mins::Int
+    valid::Bool
 
     function ZDA(sys::String)
         system = sys
@@ -106,9 +112,10 @@ type ZDA
         year = 0
         zone_hrs = 0
         zone_mins = 0
+        valid = false
         new(system, time, day,
             month, year, zone_hrs,
-            zone_mins)
+            zone_mins, valid)
     end # constructor ZDA
 
 end # type ZDA
@@ -129,6 +136,7 @@ type GBS
     prob_of_missed::Float64
     excluded_meas_err::Float64
     standard_deviation::Float64
+    valid::Bool
 
     function GBS(sys::String)
         system = sys
@@ -140,9 +148,11 @@ type GBS
         prob_of_missed = 0.0
         excluded_meas_err = 0.0
         standard_deviation = 0.0
+        valid = false
         new(system, time, lat_error,
             long_error, alt_error, failed_PRN,
-            prob_of_missed, excluded_meas_err, standard_deviation)
+            prob_of_missed, excluded_meas_err, standard_deviation,
+            valid)
     end # constructor GBS
 
 end # type GBS
@@ -161,6 +171,7 @@ type GLL
     time::Float64
     status::Bool
     mode::Char
+    valid::Bool
 
     function GLL(sys::String)
         system = sys
@@ -169,8 +180,10 @@ type GLL
         time = 0.0
         status = false
         mode = 'N'
+        valid = false
         new(system, latitude, longitude,
-            time, status, mode)
+            time, status, mode,
+            valid)
     end # constructor GLL
 
 end # type GLL
@@ -210,6 +223,7 @@ type GSV
     msg_num::Int
     sat_total::Int
     SV_data::Array{SVData}
+    valid::Bool
 
     function GSV(sys::String)
         system = sys
@@ -217,8 +231,9 @@ type GSV
         msg_num = 0
         sat_total = 0
         SV_data = []
+        valid = false
         new(system, msg_total, msg_num,
-            sat_total, SV_data)
+            sat_total, SV_data, valid)
     end # constructor GSV
 
 end # type GSV
@@ -240,6 +255,7 @@ type RMC
     date::String
     magvar::Float64
     mode::Char
+    valid::Bool
 
     function RMC(sys::String)
         system = sys
@@ -252,10 +268,11 @@ type RMC
         date = ""
         magvar = 0.0
         mode = 'N'
+        valid = false
         new(system, time, status,
             latitude, longitude, sog,
             cog, date, magvar,
-            mode)
+            mode, valid)
     end # constructor RMC
 
 end # type RMC
@@ -272,6 +289,7 @@ type VTG
     SoG_knots::Float64
     SoG_kmhr::Float64
     mode::Char
+    valid::Bool
 
     function VTG(sys::String)
         CoG_true = 0.0
@@ -279,11 +297,45 @@ type VTG
         SoG_knots = 0.0
         SoG_kmhr = 0.0
         mode = 'N'
+        valid = false
         new(CoG_true, CoG_mag, SoG_knots,
-            SoG_kmhr, mode)
+            SoG_kmhr, mode, valid)
     end # constructor VTG
 
 end # type VTG
+
+############################################################
+# DTM
+# ---
+# DTM message type - Datum
+############################################################
+
+type DTM
+    system::String
+    local_datum_code::String
+    local_datum_subcode::String
+    lat_offset::Float64
+    long_offset::Float64
+    alt_offset::Float64
+    ref_datum::String
+    valid::Bool
+
+    function DTM(sys::String)
+        system = sys 
+        local_datum_code = ""
+        local_datum_subcode = ""
+        lat_offset = 0.0
+        long_offset = 0.0
+        alt_offset = 0.0
+        ref_datum = ""
+        valid = false
+        
+        new(system, local_datum_code, local_datum_subcode,
+            lat_offset, long_offset, alt_offset,
+            ref_datum, valid)
+    end # constructor DTM
+
+end # type DTM
 
 ############################################################
 # NMEASettings
@@ -300,6 +352,7 @@ type NMEASettings
     last_VTG::VTG
     last_GLL::GLL
     last_ZDA::ZDA
+    last_DTM::DTM
 
     function NMEASettings()
         last_GGA = GGA("UNKNOWN")
@@ -310,9 +363,10 @@ type NMEASettings
         last_VTG = VTG("UNKNOWN")
         last_GLL = GLL("UNKNOWN")
         last_ZDA = ZDA("UNKNOWN")
+        last_DTM = DTM("UNKNOWN")
         new(last_GGA, last_RMC, last_GSA,
             last_GSV, last_GBS, last_VTG,
-            last_GLL, last_ZDA)
+            last_GLL, last_ZDA, last_DTM)
     end # constructor NMEASettings
 
 end # type NMEASettings
@@ -332,6 +386,7 @@ function parse_line!(s::NMEASettings, line::String)
 
     mtype = ""
     if (ismatch(r"DTM$", items[1]))
+        s.last_DTM = _parse_DTM(items, system)
         mtype = "DTM"
    
     elseif (ismatch(r"GBS$", items[1]))
@@ -368,14 +423,9 @@ function parse_line!(s::NMEASettings, line::String)
     elseif (ismatch(r"ZDA$", items[1]))
         s.last_ZDA = _parse_ZDA(items, system)
         mtype = "ZDA"
-    
-    elseif (ismatch (r"Q$", items[1]))
-        mtype = "Q"
-    
     else
         mtype = "PROPRIETARY"
     end
-
     mtype
 end # function start!
 
@@ -423,15 +473,38 @@ function _parse_GGA(items::Array{SubString{ASCIIString}}, system::String)
     GGA_data.time = _hms_to_secs(items[2])
     GGA_data.latitude = _dms_to_dd(items[3], items[4])
     GGA_data.longitude = _dms_to_dd(items[5], items[6])
-    GGA_data.flag = tryint(items[7])
-    GGA_data.num_sats = tryint(items[8])
-    GGA_data.HDOP = tryfloat(items[9])
-    GGA_data.altitude = tryfloat(items[10])
-    GGA_data.geoidal_seperation = tryfloat(items[12])
-    GGA_data.age_of_differential = tryfloat(items[14])
-    GGA_data.diff_reference_id = tryint(items[15])
+    
+    fix_flag = try_parse(items[7], Int, 0)
+    if (fix_flag == 0)
+        GGA_data.fix_quality = "INVALID"
+    elseif (fix_flag == 1)
+        GGA_data.fix_quality = "GPS (SPS)"
+    elseif (fix_flag == 2)
+        GGA_data.fix_quality = "DGPS"
+    elseif (fix_flag == 3)
+        GGA_data.fix_quality = "PPS"
+    elseif (fix_flag == 4)
+        GGA_data.fix_quality = "REAL TIME KINEMATIC"
+    elseif (fix_flag == 5)
+        GGA_data.fix_quality = "FLOAT RTK"
+    elseif (fix_flag == 6)
+        GGA_data.fix_quality = "DEAD RECKONING"
+    elseif (fix_flag == 7)
+        GGA_data.fix_quality = "MANUAL INPUT"
+    elseif (fix_flag == 8)
+        GGA_data.fix_quality = "SIMULATION"
+    else
+        GGA_data.fix_quality = "UNKNOWN"
+    end
 
-    return GGA_data
+    GGA_data.num_sats = try_parse(items[8], Int, 0)
+    GGA_data.HDOP = try_parse(items[9], Float64, 0.0)
+    GGA_data.altitude = try_parse(items[10], Float64, 0.0)
+    GGA_data.geoidal_seperation = try_parse(items[12], Float64, 0.0)
+    GGA_data.age_of_differential = try_parse(items[14], Float64, 0.0)
+    GGA_data.diff_reference_id = try_parse(items[15], Int, 0)
+    GGA_data.valid = true
+    GGA_data
 end # function _parse_GGA
 
 ############################################################
@@ -443,18 +516,19 @@ end # function _parse_GGA
 function _parse_GSA(items::Array{SubString{ASCIIString}}, system::String)
     GSA_data = GSA(system)
     GSA_data.mode = items[2][1]
-    GSA_data.current_mode = tryint(items[3])
+    GSA_data.current_mode = try_parse(items[3], Int, 0)
 
     for i = 4:length(items) - 3
         if (items[i] == "")
             break
         end
-        push!(GSA_data.sat_ids, tryint(items[i]))
+        push!(GSA_data.sat_ids, try_parse(items[i], Int, 0))
     end
-    GSA_data.PDOP = tryfloat(items[end - 2])
-    GSA_data.HDOP = tryfloat(items[end - 1])
-    GSA_data.VDOP = tryfloat(items[end])
-
+    
+    GSA_data.PDOP = try_parse(items[end - 2], Float64, 0.0)
+    GSA_data.HDOP = try_parse(items[end - 1], Float64, 0.0)
+    GSA_data.VDOP = try_parse(items[end], Float64, 0.0)
+    GSA_data.valid = true
     GSA_data
 end # function _parse_GSA
 
@@ -467,11 +541,12 @@ end # function _parse_GSA
 function _parse_ZDA(items::Array{SubString{ASCIIString}}, system::String)
     ZDA_data = ZDA(system)
     ZDA_data.time = _hms_to_secs(items[2])
-    ZDA_data.day = tryint(items[3])
-    ZDA_data.month = tryint(items[4])
-    ZDA_data.year = tryint(items[5])
-    ZDA_data.zone_hrs = tryint(items[6])
-    ZDA_data.zone_mins = tryint(items[7])
+    ZDA_data.day = try_parse(items[3], Int, 0)
+    ZDA_data.month = try_parse(items[4], Int, 0)
+    ZDA_data.year = try_parse(items[5], Int, 0)
+    ZDA_data.zone_hrs = try_parse(items[6], Int, 0)
+    ZDA_data.zone_mins = try_parse(items[7], Int, 0)
+    ZDA_data.valid = true
     ZDA_data
 end # function _parse_ZDA
 
@@ -484,13 +559,14 @@ end # function _parse_ZDA
 function _parse_GBS(items::Array{SubString{ASCIIString}}, system::String)
     GBS_data = GBS(system)
     GBS_data.time = _hms_to_secs(items[2])
-    GBS_data.lat_error = tryfloat(items[3])
-    GBS_data.long_error = tryfloat(items[4])
-    GBS_data.alt_error = tryfloat(items[5])
-    GBS_data.failed_PRN = tryint(items[6])
-    GBS_data.prob_of_missed = tryfloat(items[7])
-    GBS_data.excluded_meas_err = tryfloat(items[8])
-    GBS_data.standard_deviation = tryfloat(items[9])
+    GBS_data.lat_error = try_parse(items[3], Float64, 0.0)
+    GBS_data.long_error = try_parse(items[4], Float64, 0.0)
+    GBS_data.alt_error = try_parse(items[5], Float64, 0.0)
+    GBS_data.failed_PRN = try_parse(items[6], Int, 0)
+    GBS_data.prob_of_missed = try_parse(items[7], Float64, 0.0)
+    GBS_data.excluded_meas_err = try_parse(items[8], Float64, 0.0)
+    GBS_data.standard_deviation = try_parse(items[9], Float64, 0.0)
+    GBS_data.valid = true
     GBS_data
 end # function _parse_GBS
 
@@ -516,6 +592,7 @@ function _parse_GLL(items::Array{SubString{ASCIIString}}, system::String)
         GLL_data.mode = items[8][1]
     end
 
+    GLL_data.valid = true
     GLL_data
 end # function _parse_GLL
 
@@ -527,23 +604,24 @@ end # function _parse_GLL
 
 function _parse_GSV(items::Array{SubString{ASCIIString}}, system::String)
     GSV_data = GSV(system)
-    GSV_data.msg_total = tryint(items[2])
-    GSV_data.msg_num = tryint(items[3])
-    GSV_data.sat_total = tryint(items[4])
+    GSV_data.msg_total = try_parse(items[2], Int, 0)
+    GSV_data.msg_num = try_parse(items[3], Int, 0)
+    GSV_data.sat_total = try_parse(items[4], Int, 0)
 
     i = 5
     while i < length(items)
         svd = SVData()
-        svd.PRN = tryint(items[i])
-        svd.elevation = tryint(items[i + 1])
-        svd.azimuth = tryint(items[i + 2])
-        svd.SNR = tryint(items[i + 3])
+        svd.PRN = try_parse(items[i], Int, 0)
+        svd.elevation = try_parse(items[i + 1], Int, 0)
+        svd.azimuth = try_parse(items[i + 2], Int, 0)
+        svd.SNR = try_parse(items[i + 3], Int, 0)
         push!(GSV_data.SV_data, svd)
         i += 4
     end
+    
+    GSV_data.valid = true
     GSV_data
 end # function _parse_GSV
-
 
 ############################################################
 # _parse_RMC
@@ -563,19 +641,17 @@ function parse_RMC(items::Array{SubString{ASCIIString}}, system::String)
 
     RMC_data.latitude = _dms_to_dd(items[4], items[5])
     RMC_data.longitude = _dms_to_dd(items[6], items[7])
-    RMC_data.sog = tryfloat(items[8])
-    RMC_data.cog = tryfloat(items[9])
+    RMC_data.sog = try_parse(items[8], Float64, 0.0)
+    RMC_data.cog = try_parse(items[9], Float64, 0.0)
     RMC_data.date = string(items[10][3:4], '/', items[10][1:2], '/', items[10][5:6])
 
     if (items[12] == "W" || items[12] == "S")
-        println(items[11])
-        RMC_data.magvar = tryfloat(items[11]) * -1
+        RMC_data.magvar = try_parse(items[11], Float64, 0.0) * -1
     else
-        RMC_data.magvar = tryfloat(items[11])
+        RMC_data.magvar = try_parse(items[11], Float64, 0.0)
     end
-
     RMC_data.mode = items[13][1]
-
+    RMC_data.valid = true
     RMC_data
 end # function parse_RMC
 
@@ -587,13 +663,44 @@ end # function parse_RMC
 
 function parse_VTG(items::Array{SubString{ASCIIString}}, system::String)
     VTG_data = VTG(system)
-    VTG_data.CoG_true = tryfloat(items[2])
-    VTG_data.CoG_mag = tryfloat(items[4])
-    VTG_data.SoG_knots = tryfloat(items[6])
-    VTG_data.SoG_kmhr = tryfloat(items[8])
+    VTG_data.CoG_true = try_parse(items[2], Float64, 0.0)
+    VTG_data.CoG_mag = try_parse(items[4], Float64, 0.0)
+    VTG_data.SoG_knots = try_parse(items[6], Float64, 0.0)
+    VTG_data.SoG_kmhr = try_parse(items[8], Float64, 0.0)
     VTG_data.mode = items[10][1]
+    VTG_data.valid = true
     VTG_data
 end # function parse_VTG
+
+############################################################
+# _parse_DTM
+# ----------
+# parse DTM messages
+############################################################
+
+function _parse_DTM(items::Array{SubString{ASCIIString}}, system::String)
+    DTM_data = DTM(system)
+    DTM_data.local_datum_code = try_parse(items[2], String, "")
+    DTM_data.local_datum_subcode = items[3]
+    lat_offset = try_parse(items[4], Float64, 0.0)
+    if (items[5] == "S")
+        DTM_data.lat_offset = lat_offset * -1
+    else
+        DTM_data.lat_offset = lat_offset
+    end
+
+    long_offset = try_parse(items[6], Float64, 0.0)
+    if (items[7] == "W")
+        DTM_data.long_offset = long_offset * -1
+    else
+        DTM_data.long_offset = long_offset
+    end
+
+    DTM_data.alt_offset = try_parse(items[8], Float64, 0.0)
+    DTM_data.ref_datum = items[9]
+    DTM_data.valid = true
+    DTM_data
+end # function _parse_DTM
 
 ############################################################
 # _dms_to_dd
@@ -621,7 +728,7 @@ end # function _dms_to_dd
 ############################################################
 # _hms_to_secs
 # ------------
-# hhmmss.s-s to time in seconds
+# hhmmss.s-s to time of day in seconds
 ############################################################
 
 function _hms_to_secs(hms::SubString{ASCIIString})
@@ -632,31 +739,32 @@ function _hms_to_secs(hms::SubString{ASCIIString})
 end # function _hms_to_secs
 
 ############################################################
-# tryfloat
-# --------
-# return parsed float or 0
+# try_parse
+# ---------
+# try to parse item as specific type and return; if parsing
+# fails return the default
 ############################################################
 
-function tryfloat(item::SubString{ASCIIString})
+function try_parse(item::SubString{ASCIIString}, dtype::DataType, default::Any)
     try
-        float(item)
-    catch
-        0
-    end
-end # function tryfloat
+        if (item == "" || item == nothing)
+            return default
+        end
 
-############################################################
-# tryint
-# ------
-# return parsed int or 0
-############################################################
+        if (dtype == Float64)
+            return float(item)
+        end
 
-function tryint(item::SubString{ASCIIString})
-    try
-        int(item)
+        if (dtype == Int)
+            return int(item)
+        end
+
+        if (dtype == String)
+            return string(item)
+        end
     catch
-        0
+        default
     end
-end # function tryint
+end # function try_parse
 
 end # module NMEA
