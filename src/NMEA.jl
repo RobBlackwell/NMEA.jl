@@ -1,8 +1,8 @@
 module NMEA
 
 # public types and methods
-export NMEASettings,
-       parse_line!,
+export NMEAData,
+       parse_msg!,
        GGA,
        RMC,
        GSA,
@@ -338,12 +338,12 @@ type DTM
 end # type DTM
 
 ############################################################
-# NMEASettings
+# NMEAData
 # ------------
 # IO handler settings
 ############################################################
 
-type NMEASettings
+type NMEAData
     last_GGA::GGA
     last_RMC::RMC
     last_GSA::GSA
@@ -354,7 +354,7 @@ type NMEASettings
     last_ZDA::ZDA
     last_DTM::DTM
 
-    function NMEASettings()
+    function NMEAData()
         last_GGA = GGA("UNKNOWN")
         last_RMC = RMC("UNKNOWN")
         last_GSA = GSA("UNKNOWN")
@@ -367,17 +367,17 @@ type NMEASettings
         new(last_GGA, last_RMC, last_GSA,
             last_GSV, last_GBS, last_VTG,
             last_GLL, last_ZDA, last_DTM)
-    end # constructor NMEASettings
+    end # constructor NMEAData
 
-end # type NMEASettings
+end # type NMEAData
 
 ############################################################
 # start!
 # ------
-# open serial port and start reading NMEASettings messages
+# open serial port and start reading NMEAData messages
 ############################################################
 
-function parse_line!(s::NMEASettings, line::String)
+function parse_msg!(s::NMEAData, line::String)
     message = split(line, '*')[1]
     items = split(message, ',')
 
