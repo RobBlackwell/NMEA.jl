@@ -247,7 +247,7 @@ end # type GSV
 type RMC
     system::String
     time::Float64
-    status::Bool
+    status::Char
     latitude::Float64
     longitude::Float64
     sog::Float64
