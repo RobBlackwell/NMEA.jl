@@ -45,40 +45,24 @@ parses NMEA line/sentence and stores data in NMEAData; returns message type
 
 The following example reads and parses a file of NMEA data line by line and
 displays GGA and GSV data
+
 ```julia
+NMEA
+
 function display_GGA(m::GGA)
     println("==================================================")
     println("=============== ESSENTIAL FIX DATA ===============")
-    println("System: $(m.system)")
-    println("Time Of Day (UTC): $(m.time) secs")
-    println("Latitude: $(m.latitude)")
-    println("Longitude: $(m.longitude)")
-    println("Fix Quality: $(m.fix_quality)")
-    println("Tracked Satellites: $(m.num_sats)")
-    println("HDOP: $(m.HDOP)")
-    println("Altitude (MSL): $(m.altitude) m")
-    println("Geoidal Seperation: $(m.geoidal_seperation) m")
+    println("System: $(get(m.system))")
+    println("Time Of Day (UTC): $(get(m.time)) secs")
+    println("Latitude: $(get(m.latitude))")
+    println("Longitude: $(get(m.longitude))")
+    println("Fix Quality: $(get(m.fix_quality))")
+    println("Tracked Satellites: $(get(m.num_sats))")
+    println("HDOP: $(get(m.HDOP))")
+    println("Altitude (MSL): $(get(m.altitude)) m")
+    println("Geoidal Seperation: $(get(m.geoidal_seperation)) m")
     println("==================================================\n")
 end # function display_GGA
-
-function display_GSV(m::GSV)
-    if (m.msg_num == 1)
-        println("==================================================")
-        println("============== SATELLITES IN VIEW ================")
-    end
-
-    for sat = m.SV_data
-        println("System: $(m.system)")
-        println("PRN: $(sat.PRN)")
-        println("Elevation: $(sat.elevation) degrees")
-        println("Azimuth: $(sat.azimuth) degrees")
-        println("Signal To Noise: $(sat.SNR)\n")
-    end
-
-    if (m.msg_num == m.msg_total)
-        println("==================================================\n")
-    end
-end # function display GSV
 
 # initialize/construct
 nmea = NMEAData()
@@ -88,12 +72,10 @@ fh = open("testdata.txt", "r")
 for line = readlines(fh)
     # parse each line (sentence) in NMEA file and return message type
     mtype = parse_msg!(nmea, line)
-    
+
     # display GGA and GSV data
     if (mtype == "GGA")
         display_GGA(nmea.last_GGA)
-    elseif (mtype == "GSV")
-        display_GSV(nmea.last_GSV)
     else
         continue
     end
