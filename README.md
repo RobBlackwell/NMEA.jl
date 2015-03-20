@@ -96,26 +96,5 @@ HDOP: 0.9
 Altitude (MSL): 5.6 m
 Geoidal Seperation: 41.5 m
 ==================================================
-
-==================================================
-============== SATELLITES IN VIEW ================
-System: GPS
-PRN: 11
-Elevation: 60 degrees
-Azimuth: 271 degrees
-Signal To Noise: 27
-
-System: GPS
-PRN: 19
-Elevation: 58 degrees
-Azimuth: 179 degrees
-Signal To Noise: 25
-
-System: GPS
-PRN: 22
-Elevation: 45 degrees
-Azimuth: 68 degrees
-Signal To Noise: 30
-
 ...
 ```
