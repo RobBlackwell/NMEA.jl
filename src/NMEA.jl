@@ -9,11 +9,11 @@ export NMEAData, parse_msg!, GGA,
 # type for GGA message - Global Positioning System Fix Data
 #----------
 type GGA
-    system::Nullable{String} # GPS, GLONASS, GALILEO, or Combined
+    system::Nullable{AbstractString} # GPS, GLONASS, GALILEO, or Combined
     time::Nullable{Float64} # in seconds
     latitude::Nullable{Float64} # decimal degrees
     longitude::Nullable{Float64} # decimal degrees
-    fix_quality::Nullable{String}
+    fix_quality::Nullable{AbstractString}
     num_sats::Nullable{Int}
     HDOP::Nullable{Float64}
     altitude::Nullable{Float64} # MSL in meters
@@ -22,7 +22,7 @@ type GGA
     diff_reference_id::Nullable{Int} # differential reference station id
     valid::Nullable{Bool}
 
-    function GGA(sys::String)
+    function GGA(sys::AbstractString)
         system              = sys
         time                = 0.0
         latitude            = 0.0
@@ -48,7 +48,7 @@ end # type GGA
 # GSA message type - GNSS DOP and Active Satellites
 #----------
 type GSA
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     mode::Nullable{Char}
     current_mode::Nullable{Int}
     sat_ids::Array{Nullable{Int}}
@@ -57,7 +57,7 @@ type GSA
     VDOP::Nullable{Float64}
     valid::Nullable{Bool}
 
-    function GSA(sys::String)
+    function GSA(sys::AbstractString)
         system       = sys
         mode         = 'M'
         current_mode = 0
@@ -76,7 +76,7 @@ end # type GSA
 # ZDA message type - Time and Date
 #----------
 type ZDA
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     time::Nullable{Float64}
     day::Nullable{Int}
     month::Nullable{Int}
@@ -85,7 +85,7 @@ type ZDA
     zone_mins::Nullable{Int}
     valid::Nullable{Bool}
 
-    function ZDA(sys::String)
+    function ZDA(sys::AbstractString)
         system    = sys
         time      = 0.0
         day       = 0
@@ -105,7 +105,7 @@ end # type ZDA
 # GBS message type - RAIM GNSS Satellite Fault Detection
 #----------
 type GBS
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     time::Nullable{Float64}
     lat_error::Nullable{Float64}
     long_error::Nullable{Float64}
@@ -116,7 +116,7 @@ type GBS
     standard_deviation::Nullable{Float64}
     valid::Nullable{Bool}
 
-    function GBS(sys::String)
+    function GBS(sys::AbstractString)
         system             = sys
         time               = 0.0
         lat_error          = 0.0
@@ -139,7 +139,7 @@ end # type GBS
 # Latitude/Longitude
 #----------
 type GLL
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     latitude::Nullable{Float64}
     longitude::Nullable{Float64}
     time::Nullable{Float64}
@@ -147,7 +147,7 @@ type GLL
     mode::Nullable{Char}
     valid::Nullable{Bool}
 
-    function GLL(sys::String)
+    function GLL(sys::AbstractString)
         system    = sys
         latitude  = 0.0
         longitude = 0.0
@@ -184,14 +184,14 @@ end # type SVData
 # type for GSV messages - GNSS Satellites In View
 #-----------
 type GSV
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     msg_total::Nullable{Int}
     msg_num::Nullable{Int}
     sat_total::Nullable{Int}
     SV_data::Array{SVData}
     valid::Nullable{Bool}
 
-    function GSV(sys::String)
+    function GSV(sys::AbstractString)
         system    = sys
         msg_total = 0
         msg_num   = 0
@@ -207,19 +207,19 @@ end # type GSV
 # RMC message type - Recommended Minimum Specific GNSS Data
 #----------
 type RMC
-    system::Nullable{String}
+    system::Nullable{AbstractString}
     time::Nullable{Float64}
     status::Nullable{Bool}
     latitude::Nullable{Float64}
     longitude::Nullable{Float64}
     sog::Nullable{Float64}
     cog::Nullable{Float64}
-    date::Nullable{String}
+    date::Nullable{AbstractString}
     magvar::Nullable{Float64}
     mode::Nullable{Char}
     valid::Nullable{Bool}
 
-    function RMC(sys::String)
+    function RMC(sys::AbstractString)
         system    = sys
         time      = 0.0
         status    = false
@@ -249,7 +249,7 @@ type VTG
     mode::Nullable{Char}
     valid::Nullable{Bool}
 
-    function VTG(sys::String)
+    function VTG(sys::AbstractString)
         CoG_true  = 0.0
         CoG_mag   = 0.0
         SoG_knots = 0.0
@@ -266,16 +266,16 @@ end # type VTG
 # DTM message type - Datum
 #----------
 type DTM
-    system::Nullable{String}
-    local_datum_code::Nullable{String}
-    local_datum_subcode::Nullable{String}
+    system::Nullable{AbstractString}
+    local_datum_code::Nullable{AbstractString}
+    local_datum_subcode::Nullable{AbstractString}
     lat_offset::Nullable{Float64}
     long_offset::Nullable{Float64}
     alt_offset::Nullable{Float64}
-    ref_datum::Nullable{String}
+    ref_datum::Nullable{AbstractString}
     valid::Nullable{Bool}
 
-    function DTM(sys::String)
+    function DTM(sys::AbstractString)
         system              = sys 
         local_datum_code    = ""
         local_datum_subcode = ""
@@ -324,7 +324,7 @@ end # type NMEAData
 #----------
 # open serial port and start reading NMEAData messages
 #----------
-function parse_msg!(s::NMEAData, line::String)
+function parse_msg!(s::NMEAData, line::AbstractString)
     message = split(line, '*')[1]
     items = split(message, ',')
 
@@ -409,7 +409,7 @@ end # function get_system
 #----------
 # parses GGA messages and returns populated GGA type
 #----------
-function parse_GGA(items::Array{SubString{ASCIIString}}, system::String)
+function parse_GGA(items::Array{SubString{ASCIIString}}, system::AbstractString)
     GGA_data = GGA(system)
     GGA_data.time = _hms_to_secs(items[2])
     GGA_data.latitude = _dms_to_dd(items[3], items[4])
@@ -451,7 +451,7 @@ end # function parse_GGA
 #----------
 # parse GSA messages
 #----------
-function parse_GSA(items::Array{SubString{ASCIIString}}, system::String)
+function parse_GSA(items::Array{SubString{ASCIIString}}, system::AbstractString)
     GSA_data = GSA(system)
     GSA_data.mode = items[2][1]
     GSA_data.current_mode = tryparse(Int, items[3])
@@ -473,7 +473,7 @@ end # function parse_GSA
 #----------
 # parse ZDA message
 #----------
-function parse_ZDA(items::Array{SubString{ASCIIString}}, system::String)
+function parse_ZDA(items::Array{SubString{ASCIIString}}, system::AbstractString)
     ZDA_data = ZDA(system)
     ZDA_data.time      = _hms_to_secs(items[2])
     ZDA_data.day       = tryparse(Int, items[3])
@@ -488,7 +488,7 @@ end # function parse_ZDA
 #----------
 # parse GBS messages
 #----------
-function parse_GBS(items::Array{SubString{ASCIIString}}, system::String)
+function parse_GBS(items::Array{SubString{ASCIIString}}, system::AbstractString)
     GBS_data                    = GBS(system)
     GBS_data.time               = _hms_to_secs(items[2])
     GBS_data.lat_error          = tryparse(Float64, items[3])
@@ -505,7 +505,7 @@ end # function parse_GBS
 #----------
 # parse GLL message
 #----------
-function parse_GLL(items::Array{SubString{ASCIIString}}, system::String)
+function parse_GLL(items::Array{SubString{ASCIIString}}, system::AbstractString)
     GLL_data           = GLL(system)
     GLL_data.latitude  = _dms_to_dd(items[2], items[3])
     GLL_data.longitude = _dms_to_dd(items[4], items[5])
@@ -528,7 +528,7 @@ end # function parse_GLL
 #----------
 # parse GSV messages
 #----------
-function parse_GSV(items::Array{SubString{ASCIIString}}, system::String)
+function parse_GSV(items::Array{SubString{ASCIIString}}, system::AbstractString)
     GSV_data           = GSV(system)
     GSV_data.msg_total = tryparse(Int, items[2])
     GSV_data.msg_num   = tryparse(Int, items[3])
@@ -552,7 +552,7 @@ end # function parse_GSV
 #----------
 # parse RMC messages
 #----------
-function parse_RMC(items::Array{SubString{ASCIIString}}, system::String)
+function parse_RMC(items::Array{SubString{ASCIIString}}, system::AbstractString)
     RMC_data = RMC(system)
     RMC_data.time = _hms_to_secs(items[2])
 
@@ -581,7 +581,7 @@ end # function parse_RMC
 #----------
 # parses VTG messages
 #----------
-function parse_VTG(items::Array{SubString{ASCIIString}}, system::String)
+function parse_VTG(items::Array{SubString{ASCIIString}}, system::AbstractString)
     VTG_data = VTG(system)
     VTG_data.CoG_true  = tryparse(Float64, items[2])
     VTG_data.CoG_mag   = tryparse(Float64, items[4])
@@ -595,7 +595,7 @@ end # function parse_VTG
 #----------
 # parse DTM messages
 #----------
-function parse_DTM(items::Array{SubString{ASCIIString}}, system::String)
+function parse_DTM(items::Array{SubString{ASCIIString}}, system::AbstractString)
     DTM_data = DTM(system)
     DTM_data.local_datum_code = items[2]
     DTM_data.local_datum_subcode = items[3]
