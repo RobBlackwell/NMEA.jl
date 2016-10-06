@@ -382,7 +382,7 @@ end # function parse_msg!
 #----------
 # determines system from message type string
 #----------
-function get_system(mtype::Any)
+function get_system(mtype::SubString{String})
     system = ""
 
     # GPS
