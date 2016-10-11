@@ -1,8 +1,5 @@
 module NMEA
 
-using Compat
-import Compat.String
-
 export NMEAData, parse_msg!, GGA,
        RMC, GSA, GSV, SVData,
        GBS, VTG, GLL, ZDA,
@@ -382,7 +379,7 @@ end # function parse_msg!
 #----------
 # determines system from message type string
 #----------
-function get_system(mtype::SubString{String})
+function get_system(mtype::SubString)
     system = ""
 
     # GPS
@@ -412,7 +409,7 @@ end # function get_system
 #----------
 # parses GGA messages and returns populated GGA type
 #----------
-function parse_GGA(items::Array{SubString{String}}, system::AbstractString)
+function parse_GGA{T<:SubString}(items::Array{T}, system::AbstractString)
     GGA_data = GGA(system)
     GGA_data.time = _hms_to_secs(items[2])
     GGA_data.latitude = _dms_to_dd(items[3], items[4])
@@ -454,7 +451,7 @@ end # function parse_GGA
 #----------
 # parse GSA messages
 #----------
-function parse_GSA(items::Array{SubString{String}}, system::AbstractString)
+function parse_GSA{T<:SubString}(items::Array{T}, system::AbstractString)
     GSA_data = GSA(system)
     GSA_data.mode = items[2][1]
     GSA_data.current_mode = tryparse(Int, items[3])
@@ -476,7 +473,7 @@ end # function parse_GSA
 #----------
 # parse ZDA message
 #----------
-function parse_ZDA(items::Array{SubString{String}}, system::AbstractString)
+function parse_ZDA{T<:SubString}(items::Array{T}, system::AbstractString)
     ZDA_data = ZDA(system)
     ZDA_data.time      = _hms_to_secs(items[2])
     ZDA_data.day       = tryparse(Int, items[3])
@@ -491,7 +488,7 @@ end # function parse_ZDA
 #----------
 # parse GBS messages
 #----------
-function parse_GBS(items::Array{SubString{String}}, system::AbstractString)
+function parse_GBS{T<:SubString}(items::Array{T}, system::AbstractString)
     GBS_data                    = GBS(system)
     GBS_data.time               = _hms_to_secs(items[2])
     GBS_data.lat_error          = tryparse(Float64, items[3])
@@ -508,7 +505,7 @@ end # function parse_GBS
 #----------
 # parse GLL message
 #----------
-function parse_GLL(items::Array{SubString{String}}, system::AbstractString)
+function parse_GLL{T<:SubString}(items::Array{T}, system::AbstractString)
     GLL_data           = GLL(system)
     GLL_data.latitude  = _dms_to_dd(items[2], items[3])
     GLL_data.longitude = _dms_to_dd(items[4], items[5])
@@ -531,7 +528,7 @@ end # function parse_GLL
 #----------
 # parse GSV messages
 #----------
-function parse_GSV(items::Array{SubString{String}}, system::AbstractString)
+function parse_GSV{T<:SubString}(items::Array{T}, system::AbstractString)
     GSV_data           = GSV(system)
     GSV_data.msg_total = tryparse(Int, items[2])
     GSV_data.msg_num   = tryparse(Int, items[3])
@@ -555,7 +552,7 @@ end # function parse_GSV
 #----------
 # parse RMC messages
 #----------
-function parse_RMC(items::Array{SubString{String}}, system::AbstractString)
+function parse_RMC{T<:SubString}(items::Array{T}, system::AbstractString)
     RMC_data = RMC(system)
     RMC_data.time = _hms_to_secs(items[2])
 
@@ -584,7 +581,7 @@ end # function parse_RMC
 #----------
 # parses VTG messages
 #----------
-function parse_VTG(items::Array{SubString{String}}, system::AbstractString)
+function parse_VTG{T<:SubString}(items::Array{T}, system::AbstractString)
     VTG_data = VTG(system)
     VTG_data.CoG_true  = tryparse(Float64, items[2])
     VTG_data.CoG_mag   = tryparse(Float64, items[4])
@@ -598,7 +595,7 @@ end # function parse_VTG
 #----------
 # parse DTM messages
 #----------
-function parse_DTM(items::Array{SubString{String}}, system::AbstractString)
+function parse_DTM{T<:SubString}(items::Array{T}, system::AbstractString)
     DTM_data = DTM(system)
     DTM_data.local_datum_code = items[2]
     DTM_data.local_datum_subcode = items[3]
@@ -625,7 +622,7 @@ end # function parse_DTM
 #----------
 # convert degrees minutes seconds to decimal degrees
 #----------
-function _dms_to_dd(dms::SubString{String}, hemi::SubString{String})
+function _dms_to_dd(dms::SubString, hemi::SubString)
     if (dms[1:1] == "0")
         dms = dms[2:end]
     end
@@ -644,7 +641,7 @@ end # function _dms_to_dd
 #----------
 # hhmmss.s-s to time of day in seconds
 #----------
-function _hms_to_secs(hms::SubString{String})
+function _hms_to_secs(hms::SubString)
     hours   = parse(Float64, hms[1:2])
     minutes = parse(Float64, hms[3:4])
     seconds = parse(Float64, hms[5:end])
