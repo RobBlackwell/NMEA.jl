@@ -1,47 +1,47 @@
-##NMEA [![Build Status](https://travis-ci.org/furface/NMEA.jl.svg?branch=master)](https://travis-ci.org/furface/NMEA.jl)
+## NMEA [![Build Status](https://travis-ci.org/furface/NMEA.jl.svg?branch=master)](https://travis-ci.org/furface/NMEA.jl)
 
 NMEA.jl is a package for parsing NMEA GPS protocol sentences
 
-##Synopsis
+## Synopsis
 
-###Types
+### Types
 
-####NMEAData
+#### NMEAData
 stores data for last parsed sentence of all NMEA message types
 
-####GGA
+#### GGA
 Global Positioning System Fix Data
 
-####GSA
+#### GSA
 GNSS DOP and Active Satellites
 
-####ZDA
+#### ZDA
 Time and Date
 
-####GBS
+#### GBS
 RAIM GNSS Satellite Fault Detection
 
-####GLL
+#### GLL
 Geographic Position - Latitude/Longitude
 
-####GSV
+#### GSV
 GNSS Satellites in View
 
-####RMC
+#### RMC
 Recommended Minimum Specific GNSS Data
 
-####VTG
+#### VTG
 Course over Ground and Ground Speed
 
-####DTM
+#### DTM
 Datum
 
-###Methods
+### Methods
 
-####parse_msg!
+#### parse_msg!
 parses NMEA line/sentence and stores data in NMEAData; returns message type
 
-###Example
+### Example
 
 The following example reads and parses a file of NMEA data line by line and
 displays GGA and GSV data
