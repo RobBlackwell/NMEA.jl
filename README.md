@@ -1,4 +1,4 @@
-## NMEA [![Build Status](https://travis-ci.org/furface/NMEA.jl.svg?branch=master)](https://travis-ci.org/furface/NMEA.jl)
+## NMEA [![Build Status](https://travis-ci.org/zznop/NMEA.jl.svg?branch=master)](https://travis-ci.org/zznop/NMEA.jl)
 
 NMEA.jl is a package for parsing NMEA GPS protocol sentences
 
