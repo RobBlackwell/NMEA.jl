@@ -3,7 +3,44 @@ module NMEA
 export NMEAData, parse_msg!, GGA,
        RMC, GSA, GSV, SVData,
        GBS, VTG, GLL, ZDA,
-       DTM
+       DTM, parse
+
+
+"""
+    parse(line::AbstractString)
+
+Parses an NMEA sentence, returning a corresponding type.
+"""
+function parse(line::AbstractString)
+    
+    message = split(line, '*')[1]
+    items = split(message, ',')
+
+    system = get_system(items[1])
+
+    if (ismatch(r"DTM$", items[1]))
+        return parse_DTM(items, system)
+    elseif (ismatch(r"GBS$", items[1]))
+        return parse_GBS(items, system)
+    elseif (ismatch(r"GGA$", items[1]))
+        return parse_GGA(items, system)
+    elseif (ismatch(r"GLL$", items[1]))
+        return parse_GLL(items, system)
+    elseif (ismatch(r"GSA$", items[1]))
+        return parse_GSA(items, system)
+    elseif (ismatch(r"GSV$", items[1]))
+        return parse_GSV(items, system)
+    elseif (ismatch(r"RMC$", items[1]))
+        return parse_RMC(items, system)
+    elseif (ismatch(r"VTG$", items[1]))
+        return parse_VTG(items, system)
+    elseif (ismatch(r"ZDA$", items[1]))
+        return parse_ZDA(items, system)
+    end
+
+    throw(ArgumentError("NMEA string not supported"))
+    
+end
 
 #----------
 # type for GGA message - Global Positioning System Fix Data
@@ -627,8 +664,8 @@ function _dms_to_dd(dms::SubString, hemi::SubString)
         dms = dms[2:end]
     end
 
-    degrees = parse(Float64, dms[1:2])
-    minutes = parse(Float64, dms[3:end])
+    degrees = Base.parse(Float64, dms[1:2])
+    minutes = Base.parse(Float64, dms[3:end])
     dec_degrees = degrees + (minutes / 60)
 
     if (hemi == "S" || hemi == "W")
@@ -642,9 +679,9 @@ end # function _dms_to_dd
 # hhmmss.s-s to time of day in seconds
 #----------
 function _hms_to_secs(hms::SubString)
-    hours   = parse(Float64, hms[1:2])
-    minutes = parse(Float64, hms[3:4])
-    seconds = parse(Float64, hms[5:end])
+    hours   = Base.parse(Float64, hms[1:2])
+    minutes = Base.parse(Float64, hms[3:4])
+    seconds = Base.parse(Float64, hms[5:end])
     (hours * 3600) + (minutes * 60) + seconds
 end # function _hms_to_secs
 
