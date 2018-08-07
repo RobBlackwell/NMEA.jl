@@ -1,8 +1,28 @@
-## NMEA [![Build Status](https://travis-ci.org/zznop/NMEA.jl.svg?branch=master)](https://travis-ci.org/zznop/NMEA.jl)
+# NMEA 
+
+
+[![Build Status](https://travis-ci.org/EchoJulia/EchoJulia.jl.svg?branch=master)](https://travis-ci.org/RobBackwell/NMEA.jl)
+
+[![Coverage Status](https://coveralls.io/repos/EchoJulia/EchoJulia.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/RobBlackwell/NMEA.jl?branch=master)
+
+[![codecov.io](http://codecov.io/github/EchoJulia/EchoJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/RobBlackwell/NMEA.jl?branch=master)
+
+## Introduction
 
 NMEA.jl is a package for parsing NMEA GPS protocol sentences
 
-## Synopsis
+N.B. I've just "adopted" this package from the original author. If you
+have any thoughts about improving the design, or if you'd like to
+contribute, please let me know.
+
+## Simple Example
+
+```
+example = NMEA.parse(raw"$GPGGA,134740.000,5540.3248,N,01231.2992,E,1,09,0.9,20.2,M,41.5,M,,0000*61")
+println(example.latitude.value)
+```
+
+## Old Synopsis
 
 ### Types
 
