@@ -1,7 +1,6 @@
 # NMEA 
 
-
-[![Build Status](https://travis-ci.org/EchoJulia/EchoJulia.jl.svg?branch=master)](https://travis-ci.org/RobBackwell/NMEA.jl)
+[![Build Status](https://travis-ci.org/EchoJulia/EchoJulia.jl.svg?branch=master)](https://travis-ci.org/RobBlackwell/NMEA.jl)
 
 [![Coverage Status](https://coveralls.io/repos/EchoJulia/EchoJulia.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/RobBlackwell/NMEA.jl?branch=master)
 
