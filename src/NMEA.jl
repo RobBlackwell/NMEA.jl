@@ -18,46 +18,46 @@ function parse(line::AbstractString)
 
     system = get_system(items[1])
 
-    if (ismatch(r"DTM$", items[1]))
+    if (occursin(r"DTM$", items[1]))
         return parse_DTM(items, system)
-    elseif (ismatch(r"GBS$", items[1]))
+    elseif (occursin(r"GBS$", items[1]))
         return parse_GBS(items, system)
-    elseif (ismatch(r"GGA$", items[1]))
+    elseif (occursin(r"GGA$", items[1]))
         return parse_GGA(items, system)
-    elseif (ismatch(r"GLL$", items[1]))
+    elseif (occursin(r"GLL$", items[1]))
         return parse_GLL(items, system)
-    elseif (ismatch(r"GSA$", items[1]))
+    elseif (occursin(r"GSA$", items[1]))
         return parse_GSA(items, system)
-    elseif (ismatch(r"GSV$", items[1]))
+    elseif (occursin(r"GSV$", items[1]))
         return parse_GSV(items, system)
-    elseif (ismatch(r"RMC$", items[1]))
+    elseif (occursin(r"RMC$", items[1]))
         return parse_RMC(items, system)
-    elseif (ismatch(r"VTG$", items[1]))
+    elseif (occursin(r"VTG$", items[1]))
         return parse_VTG(items, system)
-    elseif (ismatch(r"ZDA$", items[1]))
+    elseif (occursin(r"ZDA$", items[1]))
         return parse_ZDA(items, system)
     end
 
     throw(ArgumentError("NMEA string not supported"))
-    
+   
 end
 
 #----------
 # type for GGA message - Global Positioning System Fix Data
 #----------
-type GGA
-    system::Nullable{AbstractString} # GPS, GLONASS, GALILEO, or Combined
-    time::Nullable{Float64} # in seconds
-    latitude::Nullable{Float64} # decimal degrees
-    longitude::Nullable{Float64} # decimal degrees
-    fix_quality::Nullable{AbstractString}
-    num_sats::Nullable{Int}
-    HDOP::Nullable{Float64}
-    altitude::Nullable{Float64} # MSL in meters
-    geoidal_seperation::Nullable{Float64} # meters
-    age_of_differential::Nullable{Float64} # seconds since last SC104
-    diff_reference_id::Nullable{Int} # differential reference station id
-    valid::Nullable{Bool}
+mutable struct GGA
+    system # GPS, GLONASS, GALILEO, or Combined
+    time # in seconds
+    latitude # decimal degrees
+    longitude # decimal degrees
+    fix_quality
+    num_sats
+    HDOP
+    altitude # MSL in meters
+    geoidal_seperation # meters
+    age_of_differential # seconds since last SC104
+    diff_reference_id # differential reference station id
+    valid
 
     function GGA(sys::AbstractString)
         system              = sys
@@ -84,15 +84,15 @@ end # type GGA
 #----------
 # GSA message type - GNSS DOP and Active Satellites
 #----------
-type GSA
-    system::Nullable{AbstractString}
-    mode::Nullable{Char}
-    current_mode::Nullable{Int}
-    sat_ids::Array{Nullable{Int}}
-    PDOP::Nullable{Float64}
-    HDOP::Nullable{Float64}
-    VDOP::Nullable{Float64}
-    valid::Nullable{Bool}
+mutable struct GSA
+    system
+    mode
+    current_mode
+    sat_ids
+    PDOP
+    HDOP
+    VDOP
+    valid
 
     function GSA(sys::AbstractString)
         system       = sys
@@ -112,15 +112,15 @@ end # type GSA
 #----------
 # ZDA message type - Time and Date
 #----------
-type ZDA
-    system::Nullable{AbstractString}
-    time::Nullable{Float64}
-    day::Nullable{Int}
-    month::Nullable{Int}
-    year::Nullable{Int}
-    zone_hrs::Nullable{Int}
-    zone_mins::Nullable{Int}
-    valid::Nullable{Bool}
+mutable struct ZDA
+    system
+    time
+    day
+    month
+    year
+    zone_hrs
+    zone_mins
+    valid
 
     function ZDA(sys::AbstractString)
         system    = sys
@@ -141,17 +141,17 @@ end # type ZDA
 #----------
 # GBS message type - RAIM GNSS Satellite Fault Detection
 #----------
-type GBS
-    system::Nullable{AbstractString}
-    time::Nullable{Float64}
-    lat_error::Nullable{Float64}
-    long_error::Nullable{Float64}
-    alt_error::Nullable{Float64}
-    failed_PRN::Nullable{Int}
-    prob_of_missed::Nullable{Float64}
-    excluded_meas_err::Nullable{Float64}
-    standard_deviation::Nullable{Float64}
-    valid::Nullable{Bool}
+mutable struct GBS
+    system
+    time
+    lat_error
+    long_error
+    alt_error
+    failed_PRN
+    prob_of_missed
+    excluded_meas_err
+    standard_deviation
+    valid
 
     function GBS(sys::AbstractString)
         system             = sys
@@ -175,14 +175,14 @@ end # type GBS
 # GLL message type - Geographic Position –
 # Latitude/Longitude
 #----------
-type GLL
-    system::Nullable{AbstractString}
-    latitude::Nullable{Float64}
-    longitude::Nullable{Float64}
-    time::Nullable{Float64}
-    status::Nullable{Bool}
-    mode::Nullable{Char}
-    valid::Nullable{Bool}
+mutable struct GLL
+    system
+    latitude
+    longitude
+    time
+    status
+    mode
+    valid
 
     function GLL(sys::AbstractString)
         system    = sys
@@ -201,11 +201,11 @@ end # type GLL
 #----------
 # type to store SV data fields in GSV
 #----------
-type SVData
-    PRN::Nullable{Int}
-    elevation::Nullable{Int}
-    azimuth::Nullable{Int}
-    SNR::Nullable{Int}
+mutable struct SVData
+    PRN
+    elevation
+    azimuth
+    SNR
 
     function SVData()
         PRN       = 0
@@ -220,13 +220,13 @@ end # type SVData
 #-----------
 # type for GSV messages - GNSS Satellites In View
 #-----------
-type GSV
-    system::Nullable{AbstractString}
-    msg_total::Nullable{Int}
-    msg_num::Nullable{Int}
-    sat_total::Nullable{Int}
-    SV_data::Array{SVData}
-    valid::Nullable{Bool}
+mutable struct GSV
+    system
+    msg_total
+    msg_num
+    sat_total
+    SV_data
+    valid
 
     function GSV(sys::AbstractString)
         system    = sys
@@ -243,18 +243,18 @@ end # type GSV
 #----------
 # RMC message type - Recommended Minimum Specific GNSS Data
 #----------
-type RMC
-    system::Nullable{AbstractString}
-    time::Nullable{Float64}
-    status::Nullable{Bool}
-    latitude::Nullable{Float64}
-    longitude::Nullable{Float64}
-    sog::Nullable{Float64}
-    cog::Nullable{Float64}
-    date::Nullable{AbstractString}
-    magvar::Nullable{Float64}
-    mode::Nullable{Char}
-    valid::Nullable{Bool}
+mutable struct RMC
+    system
+    time
+    status
+    latitude
+    longitude
+    sog
+    cog
+    date
+    magvar
+    mode
+    valid
 
     function RMC(sys::AbstractString)
         system    = sys
@@ -278,13 +278,13 @@ end # type RMC
 #----------
 # VTG message type - Course over Ground & Ground Speed
 #----------
-type VTG
-    CoG_true::Nullable{Float64}
-    CoG_mag::Nullable{Float64}
-    SoG_knots::Nullable{Float64}
-    SoG_kmhr::Nullable{Float64}
-    mode::Nullable{Char}
-    valid::Nullable{Bool}
+mutable struct VTG
+    CoG_true
+    CoG_mag
+    SoG_knots
+    SoG_kmhr
+    mode
+    valid
 
     function VTG(sys::AbstractString)
         CoG_true  = 0.0
@@ -302,15 +302,15 @@ end # type VTG
 #----------
 # DTM message type - Datum
 #----------
-type DTM
-    system::Nullable{AbstractString}
-    local_datum_code::Nullable{AbstractString}
-    local_datum_subcode::Nullable{AbstractString}
-    lat_offset::Nullable{Float64}
-    long_offset::Nullable{Float64}
-    alt_offset::Nullable{Float64}
-    ref_datum::Nullable{AbstractString}
-    valid::Nullable{Bool}
+mutable struct DTM
+    system
+    local_datum_code
+    local_datum_subcode
+    lat_offset
+    long_offset
+    alt_offset
+    ref_datum
+    valid
 
     function DTM(sys::AbstractString)
         system              = sys 
@@ -331,7 +331,7 @@ end # type DTM
 #----------
 # module handler
 #----------
-type NMEAData
+mutable struct NMEAData
     last_GGA::GGA
     last_RMC::RMC
     last_GSA::GSA
@@ -369,42 +369,42 @@ function parse_msg!(s::NMEAData, line::AbstractString)
     system = get_system(items[1])
 
     mtype = ""
-    if (ismatch(r"DTM$", items[1]))
+    if (occursin(r"DTM$", items[1]))
         s.last_DTM = parse_DTM(items, system)
         mtype = "DTM"
    
-    elseif (ismatch(r"GBS$", items[1]))
+    elseif (occursin(r"GBS$", items[1]))
         s.last_GBS = parse_GBS(items, system)
         mtype = "GBS"
     
-    elseif (ismatch(r"GGA$", items[1]))
+    elseif (occursin(r"GGA$", items[1]))
         s.last_GGA = parse_GGA(items, system)
         mtype = "GGA"
     
-    elseif (ismatch(r"GLL$", items[1]))
+    elseif (occursin(r"GLL$", items[1]))
         s.last_GLL = parse_GLL(items, system)
         mtype = "GLL"
     
-    elseif (ismatch(r"GNS$", items[1]))
+    elseif (occursin(r"GNS$", items[1]))
         mtype = "GNS"
     
-    elseif (ismatch(r"GSA$", items[1]))
+    elseif (occursin(r"GSA$", items[1]))
         s.last_GSA = parse_GSA(items, system)
         mtype = "GSA"
     
-    elseif (ismatch(r"GSV$", items[1]))
+    elseif (occursin(r"GSV$", items[1]))
         s.last_GSV = parse_GSV(items, system)
         mtype = "GSV"
     
-    elseif (ismatch(r"RMC$", items[1]))
+    elseif (occursin(r"RMC$", items[1]))
         s.last_RMC = parse_RMC(items, system)
         mtype = "RMC"
     
-    elseif (ismatch(r"VTG$", items[1]))
+    elseif (occursin(r"VTG$", items[1]))
         s.last_VTG = parse_VTG(items, system)
         mtype = "VTG"
     
-    elseif (ismatch(r"ZDA$", items[1]))
+    elseif (occursin(r"ZDA$", items[1]))
         s.last_ZDA = parse_ZDA(items, system)
         mtype = "ZDA"
     else
@@ -420,19 +420,19 @@ function get_system(mtype::SubString)
     system = ""
 
     # GPS
-    if (ismatch(r"^\$GP", mtype))
+    if (occursin(r"^\$GP", mtype))
         system = "GPS"
 
     # GLONASS
-    elseif (ismatch(r"^\$GL", mtype))
+    elseif (occursin(r"^\$GL", mtype))
         system = "GLONASS"
 
     # GALILEO
-    elseif (ismatch(r"^\$GA", mtype))
+    elseif (occursin(r"^\$GA", mtype))
         system = "GALILEO"
 
     # Combined
-    elseif (ismatch(r"^\$GN", mtype))
+    elseif (occursin(r"^\$GN", mtype))
         system = "COMBINED"
 
     # Proprietary (non-NMEA standard) message
@@ -446,7 +446,7 @@ end # function get_system
 #----------
 # parses GGA messages and returns populated GGA type
 #----------
-function parse_GGA{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_GGA(items::Array{T}, system::AbstractString) where T <: SubString
     GGA_data = GGA(system)
     GGA_data.time = _hms_to_secs(items[2])
     GGA_data.latitude = _dms_to_dd(items[3], items[4])
@@ -488,7 +488,7 @@ end # function parse_GGA
 #----------
 # parse GSA messages
 #----------
-function parse_GSA{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_GSA(items::Array{T}, system::AbstractString)  where T <: SubString
     GSA_data = GSA(system)
     GSA_data.mode = items[2][1]
     GSA_data.current_mode = tryparse(Int, items[3])
@@ -510,7 +510,7 @@ end # function parse_GSA
 #----------
 # parse ZDA message
 #----------
-function parse_ZDA{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_ZDA(items::Array{T}, system::AbstractString) where T <: SubString
     ZDA_data = ZDA(system)
     ZDA_data.time      = _hms_to_secs(items[2])
     ZDA_data.day       = tryparse(Int, items[3])
@@ -525,7 +525,7 @@ end # function parse_ZDA
 #----------
 # parse GBS messages
 #----------
-function parse_GBS{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_GBS(items::Array{T}, system::AbstractString) where T <: SubString
     GBS_data                    = GBS(system)
     GBS_data.time               = _hms_to_secs(items[2])
     GBS_data.lat_error          = tryparse(Float64, items[3])
@@ -542,7 +542,7 @@ end # function parse_GBS
 #----------
 # parse GLL message
 #----------
-function parse_GLL{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_GLL(items::Array{T}, system::AbstractString) where T <: SubString
     GLL_data           = GLL(system)
     GLL_data.latitude  = _dms_to_dd(items[2], items[3])
     GLL_data.longitude = _dms_to_dd(items[4], items[5])
@@ -565,7 +565,7 @@ end # function parse_GLL
 #----------
 # parse GSV messages
 #----------
-function parse_GSV{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_GSV(items::Array{T}, system::AbstractString) where T <: SubString
     GSV_data           = GSV(system)
     GSV_data.msg_total = tryparse(Int, items[2])
     GSV_data.msg_num   = tryparse(Int, items[3])
@@ -589,7 +589,7 @@ end # function parse_GSV
 #----------
 # parse RMC messages
 #----------
-function parse_RMC{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_RMC(items::Array{T}, system::AbstractString) where T <: SubString
     RMC_data = RMC(system)
     RMC_data.time = _hms_to_secs(items[2])
 
@@ -618,7 +618,7 @@ end # function parse_RMC
 #----------
 # parses VTG messages
 #----------
-function parse_VTG{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_VTG(items::Array{T}, system::AbstractString) where T <: SubString
     VTG_data = VTG(system)
     VTG_data.CoG_true  = tryparse(Float64, items[2])
     VTG_data.CoG_mag   = tryparse(Float64, items[4])
@@ -632,7 +632,7 @@ end # function parse_VTG
 #----------
 # parse DTM messages
 #----------
-function parse_DTM{T<:SubString}(items::Array{T}, system::AbstractString)
+function parse_DTM(items::Array{T}, system::AbstractString) where T <: SubString
     DTM_data = DTM(system)
     DTM_data.local_datum_code = items[2]
     DTM_data.local_datum_subcode = items[3]
