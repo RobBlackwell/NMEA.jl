@@ -5,6 +5,9 @@ export NMEAData, parse_msg!, GGA,
        GBS, VTG, GLL, ZDA,
        DTM, parse
 
+@static if VERSION < v"0.7.0-DEV.2005"
+    occursin = ismatch
+end
 
 """
     parse(line::AbstractString)
