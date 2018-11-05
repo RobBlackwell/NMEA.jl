@@ -18,7 +18,7 @@ contribute, please let me know.
 
 ```
 example = NMEA.parse(raw"$GPGGA,134740.000,5540.3248,N,01231.2992,E,1,09,0.9,20.2,M,41.5,M,,0000*61")
-println(example.latitude.value)
+println(example.latitude)
 ```
 
 ## Old Synopsis
