@@ -9,6 +9,7 @@ export NMEAData, parse_msg!, GGA,
     occursin = ismatch
 end
 
+
 """
     parse(line::AbstractString)
 
@@ -16,7 +17,15 @@ Parses an NMEA sentence, returning a corresponding type.
 """
 function parse(line::AbstractString)
 
-    message = split(line, '*')[1]
+    message, checksum  = split(line, '*')
+
+    if checksum!=xor(Vector{UInt8}(split(message,"\$")[2])...)
+        @warn "Message checksum mismatch"
+        # print(message)
+        # print(Char(checksum))
+        # print(Char(xor(Vector{UInt8}(split(message,"\$")[2])...)))
+    end
+
     items = split(message, ',')
 
     system = get_system(items[1])
