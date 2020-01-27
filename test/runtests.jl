@@ -20,7 +20,7 @@ for line = readlines(f)
         @test nmeas.last_GSV.valid
     elseif (mtype == "GBS")
         @test nmeas.last_GBS.valid
-    elseif (mtype == "VTG") 
+    elseif (mtype == "VTG")
         @test nmeas.last_VTG.valid
     elseif (mtype == "GLL")
         @test nmeas.last_GLL.valid
@@ -28,6 +28,8 @@ for line = readlines(f)
         @test nmeas.last_ZDA.valid
     elseif (mtype == "DTM")
         @test nmeas.last_DTM.valid
+    elseif (mtype == "PASHR")
+        @test nmeas.last_PASHR.valid
     else
         continue
     end
