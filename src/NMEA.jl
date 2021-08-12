@@ -667,8 +667,9 @@ function _dms_to_dd(dms::SubString, hemi::SubString)
         dms = dms[2:end]
     end
 
-    degrees = Base.parse(Float64, dms[1:2])
-    minutes = Base.parse(Float64, dms[3:end])
+    decimalindex = findfirst('.', dms)
+    degrees = Base.parse(Float64, dms[1:decimalindex-3])
+    minutes = Base.parse(Float64, dms[decimalindex-2:end])
     dec_degrees = degrees + (minutes / 60)
 
     if (hemi == "S" || hemi == "W")
