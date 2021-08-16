@@ -1,0 +1,6 @@
+name = "NMEA"
+uuid = "6dcfc07b-8fa8-55f0-94e3-d46e2fec2cdb"
+version = 0.2.0
+
+[compat]
+julia = "0.7, 1, 1.1, 1.2, 1.3"

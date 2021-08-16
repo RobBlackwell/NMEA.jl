@@ -9,14 +9,23 @@ export NMEAData, parse_msg!, GGA,
     occursin = ismatch
 end
 
+
 """
     parse(line::AbstractString)
 
 Parses an NMEA sentence, returning a corresponding type.
 """
 function parse(line::AbstractString)
-    
-    message = split(line, '*')[1]
+
+    message, checksum  = split(line, '*')
+
+    if checksum!=xor(Vector{UInt8}(split(message,"\$")[2])...)
+        @warn "Message checksum mismatch"
+        # print(message)
+        # print(Char(checksum))
+        # print(Char(xor(Vector{UInt8}(split(message,"\$")[2])...)))
+    end
+
     items = split(message, ',')
 
     system = get_system(items[1])
@@ -39,10 +48,12 @@ function parse(line::AbstractString)
         return parse_VTG(items, system)
     elseif (occursin(r"ZDA$", items[1]))
         return parse_ZDA(items, system)
+    elseif (occursin(r"PASHR$", items[1]))
+        return parse_PASHR(items, system)
     end
 
     throw(ArgumentError("NMEA string not supported"))
-   
+
 end
 
 #----------
@@ -316,7 +327,7 @@ mutable struct DTM
     valid
 
     function DTM(sys::AbstractString)
-        system              = sys 
+        system              = sys
         local_datum_code    = ""
         local_datum_subcode = ""
         lat_offset          = 0.0
@@ -324,12 +335,48 @@ mutable struct DTM
         alt_offset          = 0.0
         ref_datum           = ""
         valid               = false
-        
+
         new(system, local_datum_code, local_datum_subcode,
             lat_offset, long_offset, alt_offset,
             ref_datum, valid)
     end # constructor DTM
 end # type DTM
+
+
+mutable struct PASHR
+    system
+    time
+    heading
+    heading_type
+    roll
+    pitch
+    heave
+    roll_accuracy
+    pitch_accuracy
+    heading_accuracy
+    aiding_code
+    ins_code
+    valid
+
+    function PASHR(sys::AbstractString)
+        system  = sys
+        time = 0.0
+        heading = 0.0
+        heading_type = "T"
+        roll = 0.0
+        pitch = 0.0
+        heave = 0.0
+        roll_accuracy = 0.0
+        pitch_accuracy = 0.0
+        heading_accuracy = 0.0
+        aiding_code = 0
+        ins_code = 0
+        valid    = false
+        new(system, heading, heading_type, roll, pitch, heave, roll_accuracy,
+         pitch_accuracy, heading_accuracy, aiding_code, ins_code, valid)
+    end
+
+end # type PASHR
 
 #----------
 # module handler
@@ -344,6 +391,7 @@ mutable struct NMEAData
     last_GLL::GLL
     last_ZDA::ZDA
     last_DTM::DTM
+    last_PASHR::PASHR
 
     function NMEAData()
         last_GGA = GGA("UNKNOWN")
@@ -355,9 +403,10 @@ mutable struct NMEAData
         last_GLL = GLL("UNKNOWN")
         last_ZDA = ZDA("UNKNOWN")
         last_DTM = DTM("UNKNOWN")
+        last_PASHR = PASHR("UNKNOWN")
         new(last_GGA, last_RMC, last_GSA,
             last_GSV, last_GBS, last_VTG,
-            last_GLL, last_ZDA, last_DTM)
+            last_GLL, last_ZDA, last_DTM, last_PASHR)
     end # constructor NMEAData
 end # type NMEAData
 
@@ -375,41 +424,46 @@ function parse_msg!(s::NMEAData, line::AbstractString)
     if (occursin(r"DTM$", items[1]))
         s.last_DTM = parse_DTM(items, system)
         mtype = "DTM"
-   
+
     elseif (occursin(r"GBS$", items[1]))
         s.last_GBS = parse_GBS(items, system)
         mtype = "GBS"
-    
+
     elseif (occursin(r"GGA$", items[1]))
         s.last_GGA = parse_GGA(items, system)
         mtype = "GGA"
-    
+
     elseif (occursin(r"GLL$", items[1]))
         s.last_GLL = parse_GLL(items, system)
         mtype = "GLL"
-    
+
     elseif (occursin(r"GNS$", items[1]))
         mtype = "GNS"
-    
+
     elseif (occursin(r"GSA$", items[1]))
         s.last_GSA = parse_GSA(items, system)
         mtype = "GSA"
-    
+
     elseif (occursin(r"GSV$", items[1]))
         s.last_GSV = parse_GSV(items, system)
         mtype = "GSV"
-    
+
     elseif (occursin(r"RMC$", items[1]))
         s.last_RMC = parse_RMC(items, system)
         mtype = "RMC"
-    
+
     elseif (occursin(r"VTG$", items[1]))
         s.last_VTG = parse_VTG(items, system)
         mtype = "VTG"
-    
+
     elseif (occursin(r"ZDA$", items[1]))
         s.last_ZDA = parse_ZDA(items, system)
         mtype = "ZDA"
+
+    elseif (occursin(r"PASHR$", items[1]))
+        s.last_PASHR = parse_PASHR(items, system)
+        mtype = "PASHR"
+
     else
         mtype = "PROPRIETARY"
     end
@@ -454,7 +508,7 @@ function parse_GGA(items::Array{T}, system::AbstractString) where T <: SubString
     GGA_data.time = _hms_to_secs(items[2])
     GGA_data.latitude = _dms_to_dd(items[3], items[4])
     GGA_data.longitude = _dms_to_dd(items[5], items[6])
-    
+
     fix_flag = tryparse(Int, items[7])
     if (fix_flag == 0)
         GGA_data.fix_quality = "INVALID"
@@ -502,7 +556,7 @@ function parse_GSA(items::Array{T}, system::AbstractString)  where T <: SubStrin
         end
         push!(GSA_data.sat_ids, tryparse(Int, items[i]))
     end
-    
+
     GSA_data.PDOP  = tryparse(Float64, items[end - 2])
     GSA_data.HDOP  = tryparse(Float64, items[end - 1])
     GSA_data.VDOP  = tryparse(Float64, items[end])
@@ -584,7 +638,7 @@ function parse_GSV(items::Array{T}, system::AbstractString) where T <: SubString
         push!(GSV_data.SV_data, svd)
         i += 4
     end
-    
+
     GSV_data.valid = true
     GSV_data
 end # function parse_GSV
@@ -658,6 +712,32 @@ function parse_DTM(items::Array{T}, system::AbstractString) where T <: SubString
     DTM_data.valid      = true
     DTM_data
 end # function parse_DTM
+
+function parse_PASHR(items::Array{T}, system::AbstractString) where T<:SubString
+    PASHR_data = PASHR(system)
+    PASHR_data.time = _hms_to_secs(items[2])
+    PASHR_data.heading = tryparse(Float64, items[3])
+    if (items[4]=="T")
+        PASHR_data.heading_type = "True"
+    else
+        PASHR_data.heading_type = ""
+    end
+    PASHR_data.roll = tryparse(Float64, items[5])
+    PASHR_data.pitch = tryparse(Float64, items[6])
+    PASHR_data.heave = tryparse(Float64, items[7])
+    PASHR_data.roll_accuracy = tryparse(Float64, items[8])
+    PASHR_data.pitch_accuracy = tryparse(Float64, items[9])
+    PASHR_data.heading_accuracy = tryparse(Float64, items[10])
+    PASHR_data.aiding_code = items[11]
+    if length(items)>11
+        # INS status may be missing from certain systems
+        PASHR_data.ins_code = items[12]
+    else
+        PASHR_data.ins_code = 0
+    end
+    PASHR_data.valid = true
+    PASHR_data
+end
 
 #----------
 # convert degrees minutes seconds to decimal degrees

@@ -55,6 +55,10 @@ Course over Ground and Ground Speed
 #### DTM
 Datum
 
+#### PASHR (proprietary)
+Inertial attitude data - [source](https://docs.novatel.com/OEM7/Content/SPAN_Logs/PASHR.htm)
+
+
 ### Methods
 
 #### parse_msg!
